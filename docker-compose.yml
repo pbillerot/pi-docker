@@ -1,0 +1,41 @@
+version: '2'
+
+services:
+  db:
+    image: hypriot/rpi-mysql
+    container_name: pi-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: AdminAdmin
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+
+  adminer:
+    depends_on:
+      - db
+    image: adminer
+    container_name: pi-adminer
+    restart: always
+    ports:
+      - 8080:8080
+
+  # wordpress:
+  #   depends_on:
+  #     - db
+  #   image: arm32v6/wordpress:5.2.1-php7.2-fpm-alpine
+  #   container_name: pi-wordpress
+  #   ports:
+  #   - 88:80
+  #   restart: always
+  #   environment:
+  #     WORDPRESS_DB_HOST: db:3306
+  #     WORDPRESS_DB_USER: wordpress
+  #     WORDPRESS_DB_PASSWORD: wordpress
+
+  nextcloud:
+    image: ownyourbits/nextcloudpi-armhf
+    # image: arm32v6/nextcloud
+    ports:
+      - "4043:443"
+      - "8088:80"

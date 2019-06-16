@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  portainer:
+    image: hypriot/rpi-portainer
+    container_name: portainer
+    ports:
+      - "9000:9000"
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
