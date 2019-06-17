@@ -1,35 +1,48 @@
 version: '2'
 
 services:
-  nextcloudpi:
+  nextcloud:
+    container_name: pi-nextcloud
     image: schoeffm/rpi-nextcloud
     ports:
-      - "4043:443"
       - "8088:80"
+      - "4043:443"
+    links:
+      - db:mysql
+    volumes_from:
+      - data 
+    environment:
+      NEXTCLOUD_SERVERNAME: pibox
+    networks:
+      - nextcloud
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - vol-nextcloud:/var/www/nextcloud
 
-nextcloud:
-  image: schoeffm/rpi-nextcloud
-  ports:
-    - "8088:80"
-    - "4043:443"
-  links:
-    - db:mysql
-  volumes_from:
-    - data 
-  environment:
-    OWNCLOUD_SERVERNAME: pibox
-db:
-  image: schoeffm/rpi-nextcloud-mysql
-  expose:
-    - "3306"
-  environment:
-    MYSQL_ROOT_PASSWORD: hypriot
-    OWNCLOUD_DB_USER: admin
-    OWNCLOUD_DB_PASSWORD: AdminAdmin
-data:
-  image: schoeffm/rpi-nextcloud-data
-  environment:
-    OWNCLOUD_DB_USER: admin
-    OWNCLOUD_DB_PASSWORD: AdminAdmin
+  db:
+    container_name: pi-mysql
+    image: schoeffm/rpi-nextcloud-mysql
+    expose:
+      - "3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: hypriot
+      NEXTCLOUD_DB_USER: nextcloud
+      NEXTCLOUD_DB_PASSWORD: mycloud
+    networks:
+      - nextcloud
+  data:
+    container_name: pi-nextcloud-data
+    image: schoeffm/rpi-nextcloud-data
+    environment:
+      NEXTCLOUD_DB_USER: nextcloud
+      NEXTCLOUD_DB_PASSWORD: mycloud
+
+networks:
+  nextcloud:
+    driver: bridge
+
+volumes:
+  vol-nextcloud:
+    driver_opts:
+      type: none
+      device: /home/pirate/data/nextcloud
+      o: bind
